@@ -59,6 +59,9 @@ bool StateMachine::sensorhandleLeds(void) {
   case LedBarMode::LedBarModeCO2:
     totalLedUsed = co2handleLeds();
     break;
+  case LedBarMode::LedBarModeCO2Classic:
+    totalLedUsed = co2handleLedsClassic();
+    break;
   case LedBarMode::LedBarModePm:
     totalLedUsed = pm25handleLeds();
     break;
@@ -81,11 +84,84 @@ bool StateMachine::sensorhandleLeds(void) {
 }
 
 /**
- * @brief Show CO2 LED status
+ * @brief Show CO2 LED status - Reversed "fuel gauge" style
+ * More LEDs = better air quality, fewer LEDs = worse air quality
  *
  * @return return total number of led that are used on the monitor
  */
 int StateMachine::co2handleLeds(void) {
+  int totalUsed = ag->ledBar.getNumberOfLeds();
+  int co2Value = round(value.getAverage(Measurements::CO2));
+  if (co2Value <= 600) {
+    /** GGGGGGGGG; 9 - Excellent air quality (full green bar) */
+    for (int i = 1; i <= 9; i++) {
+      ag->ledBar.setColor(RGB_COLOR_G, ag->ledBar.getNumberOfLeds() - i);
+    }
+    totalUsed = 9;
+  } else if (co2Value <= 800) {
+    /** GGGGGGGG; 8 */
+    for (int i = 1; i <= 8; i++) {
+      ag->ledBar.setColor(RGB_COLOR_G, ag->ledBar.getNumberOfLeds() - i);
+    }
+    totalUsed = 8;
+  } else if (co2Value <= 1000) {
+    /** YYYYYYY; 7 */
+    for (int i = 1; i <= 7; i++) {
+      ag->ledBar.setColor(RGB_COLOR_Y, ag->ledBar.getNumberOfLeds() - i);
+    }
+    totalUsed = 7;
+  } else if (co2Value <= 1250) {
+    /** OOOOOO; 6 */
+    for (int i = 1; i <= 6; i++) {
+      ag->ledBar.setColor(RGB_COLOR_O, ag->ledBar.getNumberOfLeds() - i);
+    }
+    totalUsed = 6;
+  } else if (co2Value <= 1500) {
+    /** OOOOO; 5 */
+    for (int i = 1; i <= 5; i++) {
+      ag->ledBar.setColor(RGB_COLOR_O, ag->ledBar.getNumberOfLeds() - i);
+    }
+    totalUsed = 5;
+  } else if (co2Value <= 1750) {
+    /** RRRR; 4 */
+    for (int i = 1; i <= 4; i++) {
+      ag->ledBar.setColor(RGB_COLOR_R, ag->ledBar.getNumberOfLeds() - i);
+    }
+    totalUsed = 4;
+  } else if (co2Value <= 2000) {
+    /** RRR; 3 */
+    for (int i = 1; i <= 3; i++) {
+      ag->ledBar.setColor(RGB_COLOR_R, ag->ledBar.getNumberOfLeds() - i);
+    }
+    totalUsed = 3;
+  } else if (co2Value <= 3000) {
+    /** P; 1 - Critical air quality (single purple LED) */
+    ag->ledBar.setColor(RGB_COLOR_P, ag->ledBar.getNumberOfLeds() - 1);
+    totalUsed = 1;
+  } else { /** > 3000 */
+    /* PRPRPRPRP; 9 - Danger warning pattern (alternating purple/red) */
+    ag->ledBar.setColor(RGB_COLOR_P, ag->ledBar.getNumberOfLeds() - 1);
+    ag->ledBar.setColor(RGB_COLOR_R, ag->ledBar.getNumberOfLeds() - 2);
+    ag->ledBar.setColor(RGB_COLOR_P, ag->ledBar.getNumberOfLeds() - 3);
+    ag->ledBar.setColor(RGB_COLOR_R, ag->ledBar.getNumberOfLeds() - 4);
+    ag->ledBar.setColor(RGB_COLOR_P, ag->ledBar.getNumberOfLeds() - 5);
+    ag->ledBar.setColor(RGB_COLOR_R, ag->ledBar.getNumberOfLeds() - 6);
+    ag->ledBar.setColor(RGB_COLOR_P, ag->ledBar.getNumberOfLeds() - 7);
+    ag->ledBar.setColor(RGB_COLOR_R, ag->ledBar.getNumberOfLeds() - 8);
+    ag->ledBar.setColor(RGB_COLOR_P, ag->ledBar.getNumberOfLeds() - 9);
+    totalUsed = 9;
+  }
+
+  return totalUsed;
+}
+
+/**
+ * @brief Show CO2 LED status - Original pattern (classic mode)
+ * Fewer LEDs = better air quality, more LEDs = worse air quality
+ *
+ * @return return total number of led that are used on the monitor
+ */
+int StateMachine::co2handleLedsClassic(void) {
   int totalUsed = ag->ledBar.getNumberOfLeds();
   int co2Value = round(value.getAverage(Measurements::CO2));
   if (co2Value <= 600) {

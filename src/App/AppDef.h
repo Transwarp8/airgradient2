@@ -79,8 +79,11 @@ enum LedBarMode {
   /** Use LED bar for show PM2.5 value level */
   LedBarModePm,
 
-  /** Use LED bar for show CO2 value level */
+  /** Use LED bar for show CO2 value level (reversed fuel gauge style) */
   LedBarModeCO2,
+
+  /** Use LED bar for show CO2 value level (original pattern) */
+  LedBarModeCO2Classic,
 };
 
 enum ConfigurationControl {

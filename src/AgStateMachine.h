@@ -26,6 +26,7 @@ private:
   void ledStatusBlinkDelay(uint32_t delay);
   bool sensorhandleLeds(void);
   int co2handleLeds(void);
+  int co2handleLedsClassic(void);
   int pm25handleLeds(void);
   void co2Calibration(void);
   void ledBarTest(void);
